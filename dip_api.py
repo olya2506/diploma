@@ -3,12 +3,9 @@ from random import randrange
 
 import vk_api
 
-from dip_db import insert_db
 
 vk_group = vk_api.VkApi(token='vk1.a.Mqy3-f1dPZxPqs9xnGw872cDIpwu_vQfMR9KIH-4ylK0yDH_QwRecu4RXAe-mFHork4Cfim6RVMSnViO7TaY4rgHPGdL4mRLmjmCJNG1duD5JJr4tlyYZ1rUlDE-gnGTmdop_YbaFRIsuS6cCJeYbbR2brhEmGX7gq1G1rHNIhKCR9SXgN9kXbA9-P56HhYU') # авторизация через токен группы
 vk_user = vk_api.VkApi(token='vk1.a.RfnXVttf_h8W3qJFSgvzFzYSp1ZCvUIEz6oJL_waVjWhEU3Zs3hIml8UckElGNlhuhbeuQiYIJD83mhSA1Rs4gZa_y36pb8x26hIGd1KjPaSiTuOEboeyELI2oqhOJT974iH1NmlPOgchz8n7k0McuLlbRrA-c3R7y0Fmw3YS3ub-QY0H9S93LAW_H82WV9m') # авторизация через токен пользователя
-
-
 
 
 def write_msg(user_id, message, attachment=None):
@@ -33,17 +30,19 @@ def get_fields(user_id): # сбор информации со страницы
         age_from = 18
         age_to = 60
 
-    city = fields['city']['id']
+    try:
+        city = fields['city']['id']
+    except:
+        city = 1
+
     status = 6
 
-    users_search(age_from, age_to, sex, city, status)
+    return users_search(age_from, age_to, sex, city, status)
 
 
 def users_search(age_from, age_to, sex, city, status): # поиск людей по параметрам
     matched_users = vk_user.method('users.search', {'age_from': age_from, 'age_to': age_to, 'sex': sex, 'city': city, 'status': status, 'fields': 'screen_name'})['items'] # список из словарей
-    for matched_user in matched_users:
-        insert_db(matched_user['id'], matched_user['screen_name'])
-
+    return matched_users
 
 
 def get_photos(user_id): # фотографии пользователя

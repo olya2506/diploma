@@ -4,8 +4,8 @@ from random import randrange
 import vk_api
 
 
-vk_group = vk_api.VkApi(token='') # авторизация через токен группы
-vk_user = vk_api.VkApi(token='') # авторизация через токен пользователя
+vk_group = vk_api.VkApi(token='vk1.a.Mqy3-f1dPZxPqs9xnGw872cDIpwu_vQfMR9KIH-4ylK0yDH_QwRecu4RXAe-mFHork4Cfim6RVMSnViO7TaY4rgHPGdL4mRLmjmCJNG1duD5JJr4tlyYZ1rUlDE-gnGTmdop_YbaFRIsuS6cCJeYbbR2brhEmGX7gq1G1rHNIhKCR9SXgN9kXbA9-P56HhYU') # авторизация через токен группы
+vk_user = vk_api.VkApi(token='vk1.a.BY_CMQaRO6vTVry9PG69KQyO2YVK_C8x3AEwIcxeAXdlQuUyHa7_iezSCG2JznbIbzt9AXFgMeSK8K_e2Y1ZgrYwBkRcjS9FkdWbIQSjCrbUmAXrAgfVsWx12WBlKVGa7gm0dtW6gb7F5hq0Gsbuyh_mikgFIp4sHngFotl9XfbxteZb4489BqU9ltUIo0OY') # авторизация через токен пользователя
 
 
 def write_msg(user_id, message, attachment=None):
@@ -46,20 +46,25 @@ def users_search(age_from, age_to, sex, city, status): # поиск людей �
 
 
 def get_photos(user_id): # фотографии пользователя
-    try:
-        photos = vk_user.method('photos.getAll', {'owner_id': user_id, 'extended': 1})
-        photos_dict = {}
-        for photo in photos['items']:
-            comments_count = get_comments(user_id, photo.get('id')) # кол-во комментариев у фото
-            photos_dict[photo.get('id')] = (photo.get('likes').get('count') + comments_count) # словарь {фото: лайки + комментарии}
-        sorted_tuples = sorted(photos_dict.items(), key=lambda item: item[1]) # сортировка по возрастанию через кортеж
-        top_3 = [sorted_tuples[-1][0], sorted_tuples[-2][0], sorted_tuples[-3][0]] # список id топ-3 фото
-        return top_3
-    except:
-        return 'Закрытый профиль :('
+    photos = vk_user.method('photos.getAll', {'owner_id': user_id, 'extended': 1})
+    photos_dict = {}
+    for photo in photos['items']:
+        comments_count = get_comments(user_id, photo.get('id')) # кол-во комментариев у фото
+        photos_dict[photo.get('id')] = (photo.get('likes').get('count') + comments_count) # словарь {фото: лайки + комментарии}
+    sorted_tuples = sorted(photos_dict.items(), key=lambda item: item[1]) # сортировка по возрастанию через кортеж
+    return sorted_tuples
 
 
 def get_comments(user_id, photo_id): # комментарии к каждой фотографии
-    comments = vk_user.method('photos.getComments', {'owner_id': user_id, 'photo_id': photo_id})
-    return comments['count'] # кол-во комментариев у фото
+    try:
+        comments = vk_user.method('photos.getComments', {'owner_id': user_id, 'photo_id': photo_id})
+        return comments['count']  # кол-во комментариев у фото
+    except:
+        comments = 0
+        return comments # если нет доступа к комментариям
 
+
+def get_city(city_from_msg):
+    cities = vk_user.method('database.getCities', {'country_id': 1, 'q': city_from_msg})
+    city = cities['items'][0]['id']
+    return city

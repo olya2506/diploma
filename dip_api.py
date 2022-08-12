@@ -1,47 +1,31 @@
-from datetime import date
 from random import randrange
 
 import vk_api
 
 
-vk_group = vk_api.VkApi(token='vk1.a.Mqy3-f1dPZxPqs9xnGw872cDIpwu_vQfMR9KIH-4ylK0yDH_QwRecu4RXAe-mFHork4Cfim6RVMSnViO7TaY4rgHPGdL4mRLmjmCJNG1duD5JJr4tlyYZ1rUlDE-gnGTmdop_YbaFRIsuS6cCJeYbbR2brhEmGX7gq1G1rHNIhKCR9SXgN9kXbA9-P56HhYU') # авторизация через токен группы
-vk_user = vk_api.VkApi(token='vk1.a.BY_CMQaRO6vTVry9PG69KQyO2YVK_C8x3AEwIcxeAXdlQuUyHa7_iezSCG2JznbIbzt9AXFgMeSK8K_e2Y1ZgrYwBkRcjS9FkdWbIQSjCrbUmAXrAgfVsWx12WBlKVGa7gm0dtW6gb7F5hq0Gsbuyh_mikgFIp4sHngFotl9XfbxteZb4489BqU9ltUIo0OY') # авторизация через токен пользователя
+vk_group = vk_api.VkApi(token='') # авторизация через токен группы
+vk_user = vk_api.VkApi(token='') # авторизация через токен пользователя
 
 
-def write_msg(user_id, message, attachment=None):
-    vk_group.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7), 'attachment': attachment}) # первый аргумент — название метода API, второй — словарь из параметров этого метода
+def write_msg(user_id, message, attachment=None, keyboard=None):
+    vk_group.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7), 'attachment': attachment, 'keyboard': keyboard}) # первый аргумент — название метода API, второй — словарь из параметров этого метода
 
 
 def get_fields(user_id): # сбор информации со страницы
     fields = vk_user.method('users.get', {'user_ids': user_id, 'fields': 'bdate, sex, city, relation'})[0]
-
-    if fields['sex'] == 1:
-        sex = 2
-    elif fields['sex'] == 2:
-        sex = 1
-    else: sex = 0
-
-    try:
-        birth_year = (fields['bdate']).split('.')[2]
-        age = date.today().year - int(birth_year)
-        age_from = age - 5
-        age_to = age + 5
-    except:
-        age_from = 18
-        age_to = 60
-
-    try:
-        city = fields['city']['id']
-    except:
-        city = 1
-
-    status = 6
-
-    return users_search(age_from, age_to, sex, city, status)
+    return fields
 
 
-def users_search(age_from, age_to, sex, city, status): # поиск людей по параметрам
-    matched_users = vk_user.method('users.search', {'age_from': age_from, 'age_to': age_to, 'sex': sex, 'city': city, 'status': status, 'fields': 'screen_name'})['items'] # список из словарей
+def users_search(age, sex, city): # поиск людей по параметрам
+    age_from = age - 5
+    age_to = age + 5
+    if sex == 1:
+        required_sex = 2
+    elif sex == 2:
+        required_sex = 1
+    else:
+        required_sex = 0
+    matched_users = vk_user.method('users.search', {'age_from': age_from, 'age_to': age_to, 'sex': required_sex, 'city': city, 'status': 6, 'fields': 'screen_name'})['items'] # список из словарей
     return matched_users
 
 
@@ -66,5 +50,8 @@ def get_comments(user_id, photo_id): # комментарии к каждой ф
 
 def get_city(city_from_msg):
     cities = vk_user.method('database.getCities', {'country_id': 1, 'q': city_from_msg})
-    city = cities['items'][0]['id']
+    try:
+        city = cities['items'][0]['id']
+    except:
+        city = 1
     return city

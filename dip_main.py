@@ -30,7 +30,12 @@ if __name__ == "__main__":
                 sex = dip_db.select(request_user_id)[1]
             else:
                 if waiting_sex:
-                    sex = request
+                    if request == 'женский' or 'ж':
+                        sex = 1
+                    elif request == 'мужской' or 'м':
+                        sex = 2
+                    else:
+                        sex = 0
                     dip_db.update_sex(request_user_id, sex) # записываем в БД
                 else:
                     dip_api.write_msg(request_user_id, 'Введите свой пол')

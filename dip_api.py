@@ -3,8 +3,8 @@ from random import randrange
 import vk_api
 
 
-vk_group = vk_api.VkApi(token='vk1.a.Mqy3-f1dPZxPqs9xnGw872cDIpwu_vQfMR9KIH-4ylK0yDH_QwRecu4RXAe-mFHork4Cfim6RVMSnViO7TaY4rgHPGdL4mRLmjmCJNG1duD5JJr4tlyYZ1rUlDE-gnGTmdop_YbaFRIsuS6cCJeYbbR2brhEmGX7gq1G1rHNIhKCR9SXgN9kXbA9-P56HhYU') # авторизация через токен группы
-vk_user = vk_api.VkApi(token='vk1.a.WFvEE3XBCQ9clutyGN-BQSDphnCFMSU60_RuexpWG5YmtP4XY_bCuFZZCI3B4tB183fnoIcVAYgeofBarXv7Jy5wVPsnWiXzo-cGWOtqObcuTyG_aiI4wW7vALN5Iatajwq3Ub3v80KYbfM-GOymQJMfaCTPR_p_V-Jb53wqNx5URMAKj1N4N3bMLwp3cG-T') # авторизация через токен пользователя
+vk_group = vk_api.VkApi(token='') # авторизация через токен группы
+vk_user = vk_api.VkApi(token='') # авторизация через токен пользователя
 
 
 def write_msg(user_id, message, attachment=None):

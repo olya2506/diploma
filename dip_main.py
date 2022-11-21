@@ -24,7 +24,7 @@ def get_age():
                 age = request
                 db.update_age(request_user_id, age)  # insert to DB
             else:
-                dip_api.write_msg(request_user_id, 'Введите свой возраст')
+                vk_group.write_msg(request_user_id, 'Введите свой возраст')
                 return
     return age
 
@@ -38,7 +38,7 @@ def get_sex():
     :return: user's sex or None if the sex is expected from the user
     """
     if 'sex' in fields:  # if the sex is on the user's page
-        sex = dip_api.get_fields(request_user_id)['sex']
+        sex = fields['sex']
     else:
         sex = db.select(request_user_id)[1]
         if sex is None:  # if the sex is not in DB
@@ -51,7 +51,7 @@ def get_sex():
                     sex = 0
                 db.update_sex(request_user_id, sex)  # insert to DB
             else:
-                dip_api.write_msg(request_user_id, 'Введите свой пол')
+                vk_group.write_msg(request_user_id, 'Введите свой пол')
                 return
     return sex
 
@@ -70,10 +70,10 @@ def get_city():
         city = db.select(request_user_id)[2]
         if city is None:  # if the city is not in DB
             if waiting_city:  # if the city is expected from message
-                city = dip_api.get_city(request)
+                city = vk_user.get_city(request)
                 db.update_city(request_user_id, city)  # insert to DB
             else:
-                dip_api.write_msg(request_user_id, 'Введите свой город:')
+                vk_group.write_msg(request_user_id, 'Введите свой город:')
                 return
     return city
 
@@ -82,7 +82,10 @@ if __name__ == "__main__":
 
     db = dip_db.DBConnection()
 
-    longpoll = VkLongPoll(dip_api.vk_group)
+    vk_group = dip_api.VkGroup()
+    vk_user = dip_api.VkUser()
+
+    longpoll = VkLongPoll(vk_group.vk)
 
     waiting_age = False
     waiting_sex = False
@@ -94,7 +97,7 @@ if __name__ == "__main__":
             request = event.text.lower()  # text of the message
             request_user_id = event.user_id  # id of the requesting user
 
-            fields = dip_api.get_fields(request_user_id)
+            fields = vk_user.get_fields(request_user_id)
 
             db.insert_fields(request_user_id)
 
@@ -111,9 +114,9 @@ if __name__ == "__main__":
                 waiting_city = True
 
             if age and sex and city is not None:
-                dip_api.write_msg(request_user_id, 'Подбираю тебе пару...')
+                vk_group.write_msg(request_user_id, 'Подбираю тебе пару...')
 
-                matched_users = dip_api.users_search(age, sex, city)
+                matched_users = vk_user.users_search(age, sex, city)
                 for matched_user in matched_users:
                     if not matched_user['is_closed']:  # if the user's page is not closed
                         screen_name = matched_user['screen_name']
@@ -125,12 +128,12 @@ if __name__ == "__main__":
 
                             link_user = 'https://vk.com/' + screen_name
 
-                            sorted_tuples = dip_api.get_photos(user_id)  # list of the user's photos
+                            sorted_tuples = vk_user.get_photos(user_id)  # list of the user's photos
 
                             attachment = ''
                             for photo in sorted_tuples[0:3]:
                                 attachment += f'photo{user_id}_{photo[0]},'
 
-                            dip_api.write_msg(request_user_id, link_user,
-                                              attachment)  # send link and photos to the requesting user
+                            vk_group.write_msg(request_user_id, link_user,
+                                               attachment)  # send link and photos to the requesting user
                             break  # one request - one user

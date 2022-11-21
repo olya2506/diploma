@@ -73,7 +73,7 @@ class DBConnection:
                         ;""")
         self.execute_query(sql_query, (request_user_id, matched_user_id, screen_name))
 
-    def if_exists(self, request_user_id, matched_user_id):
+    def if_exists(self, request_user_id, matched_user_id) -> bool:
         """
         Check if this user is in DB.
         :return: True if this user is in DB or False if the user isn't
